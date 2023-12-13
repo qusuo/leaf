@@ -136,3 +136,8 @@ func (wsConn *WSConn) WriteMsg(args ...[]byte) error {
 
 	return nil
 }
+
+func (tcpConn *WSConn) SendMsg(opCode uint32, args ...[]byte) error {
+	//return tcpConn.msgParser.WriteWithOpCode(tcpConn, opCode, args...)
+	return nil
+}
