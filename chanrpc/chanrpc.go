@@ -3,8 +3,8 @@ package chanrpc
 import (
 	"errors"
 	"fmt"
-	"github.com/name5566/leaf/conf"
-	"github.com/name5566/leaf/log"
+	"github.com/qusuo/leaf/conf"
+	"github.com/qusuo/leaf/log"
 	"runtime"
 )
 
