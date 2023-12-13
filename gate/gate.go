@@ -1,9 +1,9 @@
 package gate
 
 import (
-	"github.com/name5566/leaf/chanrpc"
-	"github.com/name5566/leaf/log"
-	"github.com/name5566/leaf/network"
+	"github.com/qusuo/leaf/chanrpc"
+	"github.com/qusuo/leaf/log"
+	"github.com/qusuo/leaf/network"
 	"net"
 	"reflect"
 	"time"
@@ -117,6 +117,20 @@ func (a *agent) OnClose() {
 		err := a.gate.AgentChanRPC.Call0("CloseAgent", a)
 		if err != nil {
 			log.Error("chanrpc error: %v", err)
+		}
+	}
+}
+
+func (a *agent) SendMsg(opCode uint32, msg interface{}) {
+	if a.gate.Processor != nil {
+		data, err := a.gate.Processor.Marshal(msg)
+		if err != nil {
+			log.Error("marshal message %v error: %v", reflect.TypeOf(msg), err)
+			return
+		}
+		err = a.conn.SendMsg(opCode, data...)
+		if err != nil {
+			log.Error("SendMsg message %v error: %v", reflect.TypeOf(msg), err)
 		}
 	}
 }
