@@ -29,7 +29,7 @@ func NewMsgParser() *MsgParser {
 
 // It's dangerous to call the method on reading or writing
 func (p *MsgParser) SetMsgLen(lenMsgLen int, minMsgLen uint32, maxMsgLen uint32) {
-	if lenMsgLen == 1 || lenMsgLen == 2 || lenMsgLen == 4 {
+	if lenMsgLen == 1 || lenMsgLen == 6 || lenMsgLen == 4 {
 		p.lenMsgLen = lenMsgLen
 	}
 	if minMsgLen != 0 {
@@ -43,7 +43,7 @@ func (p *MsgParser) SetMsgLen(lenMsgLen int, minMsgLen uint32, maxMsgLen uint32)
 	switch p.lenMsgLen {
 	case 1:
 		max = math.MaxUint8
-	case 2:
+	case 6:
 		max = math.MaxUint16
 	case 4:
 		max = math.MaxUint32
@@ -76,7 +76,8 @@ func (p *MsgParser) Read(conn *TCPConn) ([]byte, error) {
 	switch p.lenMsgLen {
 	case 1:
 		msgLen = uint32(bufMsgLen[0])
-	case 2:
+	case 6:
+		bufMsgLen = b[:p.lenMsgLen-4]
 		if p.littleEndian {
 			msgLen = uint32(binary.LittleEndian.Uint16(bufMsgLen))
 		} else {
@@ -103,7 +104,12 @@ func (p *MsgParser) Read(conn *TCPConn) ([]byte, error) {
 		return nil, err
 	}
 
-	return msgData, nil
+	if p.lenMsgLen == 6 {
+		return msgData[4:], nil
+	} else {
+		return msgData, nil
+	}
+
 }
 
 // goroutine safe
@@ -127,7 +133,7 @@ func (p *MsgParser) Write(conn *TCPConn, args ...[]byte) error {
 	switch p.lenMsgLen {
 	case 1:
 		msg[0] = byte(msgLen)
-	case 2:
+	case 6:
 		if p.littleEndian {
 			binary.LittleEndian.PutUint16(msg, uint16(msgLen))
 		} else {
