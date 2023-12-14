@@ -121,6 +121,16 @@ func (a *agent) OnClose() {
 	}
 }
 
+func (a *agent) SendBuff(opCode uint32, data [][]byte) {
+	if a.gate.Processor != nil && len(data) > 0 {
+
+		err := a.conn.SendMsg(opCode, data...)
+		if err != nil {
+			log.Error("SendBuff message %v error: %v", reflect.TypeOf(data), err)
+		}
+	}
+}
+
 func (a *agent) SendMsg(opCode uint32, msg interface{}) {
 	if a.gate.Processor != nil {
 		data, err := a.gate.Processor.Marshal(msg)
